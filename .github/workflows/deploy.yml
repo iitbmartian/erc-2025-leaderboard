@@ -26,7 +26,7 @@ jobs:
         run: pip install pandas
       
       - name: Generate HTML
-        run: python leaderboard_generator.py
+        run: python leaderboard_gen.py
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
