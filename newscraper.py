@@ -81,27 +81,48 @@ def extract_markdown_table(md_text, team_col, score_col):
         return None
 
 
-def normalize_team_names(team_list, threshold=90):
+def normalize_team_names(team_list, threshold=85):
     canonical = []
     mapping = {}
 
-    for team in team_list:
+    # Sort by length (shorter names first) to make shorter names canonical
+    sorted_teams = sorted(set(team_list), key=len)
+
+    for team in sorted_teams:
         if not canonical:  # If canonical list is empty, add the first team
             canonical.append(team)
             mapping[team] = team
         else:
-            result = process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio)
-            if result is not None:
-                match, score, _ = result
-                if match and score >= threshold:
-                    mapping[team] = match
-                else:
-                    canonical.append(team)
-                    mapping[team] = team
+            # Try multiple scoring methods
+            results = [
+                process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio),
+                process.extractOne(team, canonical, scorer=fuzz.partial_ratio),
+                process.extractOne(team, canonical, scorer=fuzz.ratio)
+            ]
+
+            best_match = None
+            best_score = 0
+
+            for result in results:
+                if result is not None:
+                    match, score, _ = result
+                    if score > best_score:
+                        best_match = match
+                        best_score = score
+
+            if best_match and best_score >= threshold:
+                mapping[team] = best_match
+                print(f"🔗 Normalized '{team}' -> '{best_match}' (score: {best_score})")
             else:
                 canonical.append(team)
                 mapping[team] = team
-    return mapping
+
+    # Apply mapping to all original teams (including duplicates)
+    final_mapping = {}
+    for team in team_list:
+        final_mapping[team] = mapping[team]
+
+    return final_mapping
 
 
 def get_leaderboard_dataframe(rounds_config=None):
@@ -117,7 +138,7 @@ def get_leaderboard_dataframe(rounds_config=None):
             (6, "Jury Points",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
              "Point count"),
-            (7, "Social Excellence",
+            (6, "Social Excellence",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md",
              "Team name", "Point count"),
         ]
