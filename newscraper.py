@@ -53,14 +53,13 @@ def extract_markdown_table(text, team_col, score_col):
         return None
 
 def get_leaderboard_dataframe():
-    # Example input: list of (url, team_column, score_column) tuples (raw GitHub Markdown URLs)
+    # Input list of tuples (url, team column, score column)
     urls = [
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md", "Team name", "Sum"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md", "Team name", "Connectivity Test score"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name", "Point count"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name", "Point count")
-    ]
-
+                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md", "Team name", "Sum"),
+                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md", "Team name", "Connectivity Test score"),
+                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name", "Point count"),
+                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name", "Point count")
+             ]
     all_teams = set()
     round_dfs = []
     team_name_map = {}
@@ -75,10 +74,9 @@ def get_leaderboard_dataframe():
 
         df = extract_markdown_table(md_text, team_col, score_col)
         if df is None or df.empty:
-            print(f"Warning: Could not find valid table with specified columns in {url}")
+            print(f"Warning: Could not find valid table with {team_col} and {score_col}")
             continue
 
-        # Track the original display name
         display_names = {}
         for team in df[team_col]:
             norm = normalize_team_name(team)
@@ -89,26 +87,28 @@ def get_leaderboard_dataframe():
         df["Team"] = df[team_col].apply(lambda x: team_name_map.get(x, x))
         df = df[["Team", score_col]]
         df.columns = ["Team", f"Round {idx}"]
-        df[f"Round {idx}"] = pd.to_numeric(df[f"Round {idx}"] , errors="coerce").fillna(0)
-
+        df[f"Round {idx}"] = pd.to_numeric(df[f"Round {idx}"], errors="coerce").fillna(0)
         round_dfs.append(df)
         all_teams.update(df["Team"].tolist())
 
-    # Create a master DataFrame with all teams
+    # Create master dataframe with all teams
     master_df = pd.DataFrame({"Team": sorted(all_teams)})
 
-    # Merge round scores into the master DataFrame, filling missing scores with 0
-    for round_df in round_dfs:
-        master_df = master_df.merge(round_df, on="Team", how="left")
+    # Ensure 7 rounds are represented
+    for i in range(1, 8):
+        round_name = f"Round {i}"
+        round_df = next((df for df in round_dfs if round_name in df.columns), None)
+        if round_df is not None:
+            master_df = master_df.merge(round_df, on="Team", how="left")
+        else:
+            master_df[round_name] = 0
 
     master_df.fillna(0, inplace=True)
-
-    # Add a Total column and sort
-    round_columns = [col for col in master_df.columns if col.startswith("Round")]
+    round_columns = [f"Round {i}" for i in range(1, 8)]
     master_df["Total"] = master_df[round_columns].sum(axis=1)
-    master_df.sort_values(by="Total", ascending=False, inplace=True)
 
     return master_df
+
 
 if __name__ == "__main__":
     df = get_leaderboard_dataframe()
