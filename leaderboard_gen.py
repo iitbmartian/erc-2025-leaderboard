@@ -6,7 +6,7 @@ def generate_leaderboard():
     df = get_leaderboard_dataframe()
     df = df.sort_values(by="Total", ascending=False).reset_index(drop=True)
 
-    output_path = "docs/index.html"
+    output_path = "index.html"
     round_columns = [col for col in df.columns if col.startswith("Round")]
 
     # Generate HTML rows
