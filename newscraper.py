@@ -111,7 +111,9 @@ def get_leaderboard_dataframe():
     return master_df
 
 if __name__ == "__main__":
-    df = get_leaderboard_dataframe()
+    df = get_leaderboard_dataframe().sort_values(by="Total", ascending=False).reset_index(drop=True)
+    for idx, row in df.iterrows():
+        position = idx + 1
     print(df)
     # Optionally save to CSV
     # df.to_csv("final_scores.csv", index=False)
