@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,62 +6,81 @@
   <title>Robotics Competition Leaderboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
-    .glow { text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
-    .rank { font-weight: bold; font-size: 1rem; background-color: #334155; border-radius: 9999px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; margin: auto; }
-    .rank-1 { background: linear-gradient(135deg, #fde047, #f59e0b); box-shadow: 0 0 10px rgba(245,158,11,0.5); }
-    .rank-2 { background: linear-gradient(135deg, #e5e7eb, #9ca3af); box-shadow: 0 0 10px rgba(156,163,175,0.5); }
-    .rank-3 { background: linear-gradient(135deg, #f97316, #b45309); box-shadow: 0 0 10px rgba(180,83,9,0.5); }
-    .total-score { font-weight: bold; background-color: #14b8a6; color: white; padding: 4px 12px; border-radius: 8px; display: inline-block; }
-    .empty-cell { color: #64748b; font-style: italic; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Mars_surface_by_Curiosity.jpg/1280px-Mars_surface_by_Curiosity.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #e2e8f0;
+    }
+
+    .overlay {
+      background-color: rgba(15, 23, 42, 0.9);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .glow {
+      text-shadow: 0 0 10px rgba(255, 100, 100, 0.6);
+    }
+
+    .rank {
+      font-weight: bold;
+      font-size: 1rem;
+      background-color: #334155;
+      border-radius: 9999px;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+    }
+
+    .rank-1 {
+      background: linear-gradient(135deg, #fde047, #f59e0b);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .rank-2 {
+      background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+      box-shadow: 0 0 10px rgba(156, 163, 175, 0.5);
+    }
+
+    .rank-3 {
+      background: linear-gradient(135deg, #f97316, #b45309);
+      box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
+    }
+
+    .total-score {
+      font-weight: bold;
+      background-color: #ef4444;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .empty-cell {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    .mars-deco {
+      max-width: 120px;
+      margin: 0 auto;
+    }
   </style>
 </head>
-<body class="p-6">
-  <div class="max-w-7xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 glow text-center">🏆 Robotics Competition Leaderboard</h1>
-    <div class="overflow-x-auto rounded-lg shadow-md">
-      <table class="min-w-full divide-y divide-slate-700 bg-slate-800 text-sm text-center">
-        <thead class="bg-slate-900 text-slate-300 uppercase tracking-wider text-xs">
-          <tr>
-            <th class="px-4 py-3">Position</th>
-            <th class="px-4 py-3">Team Name</th>
-            <th class="px-4 py-3">Round 1</th><th class="px-4 py-3">Round 2</th><th class="px-4 py-3">Round 3</th><th class="px-4 py-3">Round 4</th>
-            <th class="px-4 py-3">Total</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-700">
-          <tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">23</div></td><td class="">sapienzatechnologyteam</td><td class="">41</td><td class="">20</td><td class="">4</td><td class="">15</td><td><span class="total-score">80</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">6</div></td><td class="">crissrobotics</td><td class="">37</td><td class="">20</td><td class="">15</td><td class="empty-cell">-</td><td><span class="total-score">72</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">24</div></td><td class="">shunya</td><td class="">39</td><td class="">20</td><td class="">7</td><td class="empty-cell">-</td><td><span class="total-score">66</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">11</div></td><td class="">iitbmarsroverteam</td><td class="">38</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">63</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">16</div></td><td class="">mindcloud</td><td class="">32</td><td class="">16</td><td class="empty-cell">-</td><td class="">15</td><td><span class="total-score">63</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">25</div></td><td class="">terrabots</td><td class="">32</td><td class="">20</td><td class="">10</td><td class="empty-cell">-</td><td><span class="total-score">62</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">19</div></td><td class="">psgteamaurora</td><td class="">32</td><td class="">18</td><td class="">8</td><td class="empty-cell">-</td><td><span class="total-score">58</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">15</div></td><td class="">makercie</td><td class="">33</td><td class="">20</td><td class="">3</td><td class="empty-cell">-</td><td><span class="total-score">56</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">8</div></td><td class="">djsantariksh</td><td class="">31</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">56</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">17</div></td><td class="">nspace</td><td class="">31</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">56</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank-3">3</div></td><td class="">ares</td><td class="">29</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">54</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">22</div></td><td class="">roboconiitr</td><td class="">31</td><td class="">20</td><td class="">3</td><td class="empty-cell">-</td><td><span class="total-score">54</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">20</div></td><td class="">putlunarteam</td><td class="">23</td><td class="">20</td><td class="">3</td><td class="">5</td><td><span class="total-score">51</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">13</div></td><td class="">interplanetarbuetmarsroverteam</td><td class="">25</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">50</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank-2">2</div></td><td class="">amogh</td><td class="">28</td><td class="">20</td><td class="">2</td><td class="empty-cell">-</td><td><span class="total-score">50</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">12</div></td><td class="">infernodtu</td><td class="">37</td><td class="">8</td><td class="">2</td><td class="empty-cell">-</td><td><span class="total-score">47</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">18</div></td><td class="">projectred</td><td class="">20</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">45</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">21</div></td><td class="">rival</td><td class="">19</td><td class="">20</td><td class="">5</td><td class="empty-cell">-</td><td><span class="total-score">44</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">7</div></td><td class="">csarobotics</td><td class="">31</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td><span class="total-score">31</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">10</div></td><td class="">horizon</td><td class="">23</td><td class="">4</td><td class="">2</td><td class="empty-cell">-</td><td><span class="total-score">29</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">4</div></td><td class="">banglabotxplorer</td><td class="">10</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td><span class="total-score">10</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">9</div></td><td class="">eltestudenttechlab</td><td class="">9</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td><span class="total-score">9</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">5</div></td><td class="">blazers</td><td class="">5</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td><span class="total-score">5</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank">14</div></td><td class="">lightpheniox</td><td class="">4</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td><span class="total-score">4</span></td></tr>
-<tr class="hover:bg-slate-700 transition-all duration-150"><td><div class="rank rank-1">1</div></td><td class=""></td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td><span class="total-score">0</span></td></tr>
-
-        </tbody>
-      </table>
-      <div class="text-center text-slate-400 text-xs mt-6">
-        Last updated: 2025-06-10 11:17:06 UTC
+<body>
+  <div class="overlay">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-6">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Mars_Rover_Drawing.png/400px-Mars_Rover_Drawing.png" alt="Mars Rover" class="mars-deco mb-2" />
+        <h1 class="text-3xl font-bold glow">🚀 Mars Robotics Leaderboard</h1>
+        <p class="text-sm text-slate-400 italic mt-1">Tracking the best teams on the red planet!</p>
       </div>
-    </div>
-  </div>
-</body>
-</html>
+
+      <div class="overflow-x-auto rounded-lg shadow-md">
+        <!-- 🧠 YOUR TABLE STAYS UNTOUCHED BELOW -->
+        <!-- Keep your existing table and rows exactly as they are -->
+        <!-- ... beginning of the table unchanged ... -->
