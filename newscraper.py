@@ -186,6 +186,7 @@ def normalize_team_names(team_list, threshold=85):
     print(f"📊 Normalization complete: {len(unique_teams)} unique -> {len(canonical)} canonical")
     return final_mapping
 
+
 def get_leaderboard_dataframe(rounds_config=None):
     # Default configuration if none provided
     if rounds_config is None:
@@ -199,7 +200,7 @@ def get_leaderboard_dataframe(rounds_config=None):
             (6, "Jury Points",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
              "Point count"),
-            (6, "Social Excellence",
+            (7, "Social Excellence",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md",
              "Team name", "Point count"),
         ]
@@ -233,6 +234,11 @@ def get_leaderboard_dataframe(rounds_config=None):
             df = df[[team_col, score_col]].copy()
             df.columns = ["Team", round_name]
             df[round_name] = pd.to_numeric(df[round_name], errors="coerce").fillna(0)
+
+            # Remove empty team names before processing
+            df = df[df["Team"].str.strip() != ""].copy()
+            print(f"📊 {round_name}: {len(df)} teams after cleaning")
+
             df["_round_num"] = round_num  # Store round number for sorting
             round_dfs.append(df)
             all_teams.update(df["Team"].tolist())
@@ -244,13 +250,23 @@ def get_leaderboard_dataframe(rounds_config=None):
         print("❌ No valid data found across all rounds.")
         return pd.DataFrame(columns=["Team", "Total"])
 
+    # Normalize team names
     all_names = [name for df in round_dfs for name in df["Team"]]
+    print(f"🔄 Normalizing {len(all_names)} team name instances...")
     name_map = normalize_team_names(all_names)
 
+    # Apply normalization to all dataframes
     for df in round_dfs:
         df["Team"] = df["Team"].map(lambda name: name_map.get(name, name))
+        print(f"📊 After normalization: {df['Team'].nunique()} unique teams in {df.columns[1]}")
 
-    master_df = pd.DataFrame({"Team": sorted(set(name_map.values()))})
+    # Create master dataframe with all unique normalized team names
+    all_normalized_teams = set()
+    for df in round_dfs:
+        all_normalized_teams.update(df["Team"].unique())
+
+    master_df = pd.DataFrame({"Team": sorted(all_normalized_teams)})
+    print(f"🏆 Master dataframe initialized with {len(master_df)} unique teams")
 
     # Create columns for all 7 rounds, but populate with actual round names
     for i in range(1, 8):  # Always 7 rounds
@@ -259,6 +275,18 @@ def get_leaderboard_dataframe(rounds_config=None):
             for df in matching_dfs:
                 round_col = [col for col in df.columns if col not in ["Team", "_round_num"]][0]
                 df_to_merge = df[["Team", round_col]].copy()
+
+                # Handle duplicates within the same round by summing scores
+                print(f"🔍 Before dedup in {round_col}: {len(df_to_merge)} rows")
+                if df_to_merge["Team"].duplicated().any():
+                    print(f"⚠️  Found duplicates in {round_col}:")
+                    duplicates = df_to_merge[df_to_merge["Team"].duplicated(keep=False)]
+                    print(duplicates)
+
+                    # Sum scores for duplicate teams
+                    df_to_merge = df_to_merge.groupby("Team", as_index=False)[round_col].sum()
+                    print(f"✅ After dedup in {round_col}: {len(df_to_merge)} rows")
+
                 master_df = master_df.merge(df_to_merge, on="Team", how="left")
         else:
             master_df[f"Round {i}"] = 0
@@ -270,6 +298,22 @@ def get_leaderboard_dataframe(rounds_config=None):
     for col in round_columns:
         master_df[col] = master_df[col].astype(int)
 
+    # Final deduplication check (shouldn't be needed but just in case)
+    if master_df["Team"].duplicated().any():
+        print("⚠️  Final deduplication check found duplicates:")
+        duplicates = master_df[master_df["Team"].duplicated(keep=False)]
+        print(duplicates)
+
+        # Group by team and sum all scores
+        team_col = master_df[["Team"]].copy()
+        score_cols = master_df[round_columns]
+
+        master_df = team_col.groupby("Team", as_index=False).first()
+        summed_scores = score_cols.groupby(master_df["Team"]).sum().reset_index()
+        master_df = master_df.merge(summed_scores, on="Team")
+        print(f"✅ Final deduplication complete: {len(master_df)} unique teams")
+
     master_df["Total"] = master_df[round_columns].sum(axis=1)
 
+    print(f"🏁 Final leaderboard: {len(master_df)} teams, {len(round_columns)} round columns")
     return master_df
