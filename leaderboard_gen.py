@@ -1,24 +1,38 @@
-from newscraper import get_all_team_data  # Ensure this function exists in newscraper.py
+from newscraper import get_leaderboard_dataframe  # Make sure this is defined at module level
 from datetime import datetime
 from jinja2 import Template
 
 def generate_leaderboard():
-    data = get_all_team_data()
+    df = get_leaderboard_dataframe().copy()
 
-    if not data:
-        print("No data found.")
+    if df.empty:
+        print("No data available.")
         return
 
-    all_tasks = sorted({task for team in data for task in team['scores'].keys()})
+    # Group by team and sum numeric task columns to get total scores
+    score_columns = [col for col in df.columns if col not in ["team", "round"]]
+    team_scores = (
+        df.groupby("team")[score_columns]
+        .sum()
+        .reset_index()
+    )
 
-    for team in data:
-        team['score_list'] = [team['scores'].get(task) for task in all_tasks]
-        team['total'] = sum(score for score in team['score_list'] if score is not None)
+    # Calculate total score and prepare rows
+    team_scores["total"] = team_scores[score_columns].sum(axis=1)
+    team_scores = team_scores.sort_values(by="total", ascending=False).reset_index(drop=True)
+    team_scores["rank"] = team_scores.index + 1
 
-    data.sort(key=lambda x: x['total'], reverse=True)
-    for i, team in enumerate(data):
-        team['rank'] = i + 1
+    # Convert to dicts for templating
+    team_rows = []
+    for _, row in team_scores.iterrows():
+        team_rows.append({
+            "team": row["team"],
+            "scores": [row[task] for task in score_columns],
+            "total": row["total"],
+            "rank": row["rank"]
+        })
 
+    # Martian visual block
     mars_header = """
     <div class="text-center mb-6">
         <img src="https://mars.nasa.gov/system/news_items/main_images/10512_PIA25284-Rover-stretch-final_800.jpg" alt="Mars Rover" class="mars-deco mb-2" />
@@ -28,16 +42,18 @@ def generate_leaderboard():
     <div class="overflow-x-auto rounded-lg shadow-md">
     """
 
+    # Load and render HTML template
     with open("templates/index.html") as f:
         template = Template(f.read())
 
     rendered = template.render(
-        tasks=all_tasks,
-        team_rows=data,
+        tasks=score_columns,
+        team_rows=team_rows,
         generated_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
         mars_header=mars_header
     )
 
+    # Save to disk
     with open("docs/index.html", "w") as f:
         f.write(rendered)
 
