@@ -107,7 +107,7 @@ def generate_leaderboard():
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col items-center mb-6">
-          <img src="logo.png" alt="ERC Logo" class="w-128 h-auto mb-4" />
+          <img src="logo.png" alt="ERC Logo" class="w-80 h-auto mb-4" />
           <h1 class="text-3xl font-bold glow text-center">Live (kinda) Leaderboard</h1>
         </div>
 
