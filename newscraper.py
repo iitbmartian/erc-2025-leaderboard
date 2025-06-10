@@ -117,7 +117,7 @@ def get_leaderboard_dataframe(rounds_config=None):
             (6, "Jury Points",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
              "Point count"),
-            (6, "Social Excellence",
+            (7, "Social Excellence",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md",
              "Team name", "Point count"),
         ]
