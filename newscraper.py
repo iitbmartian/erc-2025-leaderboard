@@ -3,6 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from rapidfuzz import process, fuzz
 from io import StringIO
+import time
 
 
 def extract_markdown_table(md_text, team_col, score_col):
@@ -10,33 +11,70 @@ def extract_markdown_table(md_text, team_col, score_col):
     table_started = False
     table_lines = []
 
-    for line in lines:
-        if team_col.lower() in line.lower() and score_col.lower() in line.lower():
+    for i, line in enumerate(lines):
+        # Look for table header row containing both required columns
+        if not table_started and line.strip().startswith(
+                "|") and team_col.lower() in line.lower() and score_col.lower() in line.lower():
             table_started = True
             table_lines.append(line)
+            print(f"📋 Found table header at line {i}: {line.strip()}")
         elif table_started and line.strip().startswith("|"):
-            table_lines.append(line)
+            # Skip the separator line (usually contains dashes)
+            if not all(c in "|-: " for c in line.strip()):
+                table_lines.append(line)
         elif table_started and not line.strip():
-            break  # blank line = end of table
+            # Empty line might end the table, but let's be more lenient
+            continue
+        elif table_started and not line.strip().startswith("|"):
+            # Non-table line ends the table
+            break
 
     if len(table_lines) < 2:
         print("⚠ Table not found or malformed")
+        print(f"🔍 Looking for columns: '{team_col}' and '{score_col}'")
+        # Debug: show lines that contain pipe characters
+        pipe_lines = [f"Line {i}: {line.strip()}" for i, line in enumerate(lines) if "|" in line]
+        print(f"📋 Lines with pipes: {pipe_lines[:5]}")  # Show first 5
         return None
 
-    # Build list of rows
+    print(f"📊 Extracted {len(table_lines)} table lines")
+
+    # Build list of rows - Handle empty cells properly
     data = []
-    headers = [h.strip() for h in table_lines[0].split("|") if h.strip()]
-    for row in table_lines[1:]:
-        values = [v.strip() for v in row.split("|") if v.strip()]
+    # Parse headers - keep empty cells
+    header_parts = table_lines[0].split("|")
+    headers = [h.strip() for h in header_parts[1:-1]]  # Remove first and last empty parts
+    print(f"📋 Headers found: {headers}")
+
+    for row_idx, row in enumerate(table_lines[1:], 1):
+        # Parse row values - keep empty cells
+        row_parts = row.split("|")
+        values = [v.strip() for v in row_parts[1:-1]]  # Remove first and last empty parts
+
         if len(values) == len(headers):
+            data.append(values)
+        else:
+            print(f"⚠ Row {row_idx} has {len(values)} values but expected {len(headers)}")
+            print(f"   Raw row: {row}")
+            print(f"   Parsed values: {values}")
+            # Try to pad with empty strings if we have fewer values
+            while len(values) < len(headers):
+                values.append("")
             data.append(values)
 
     if not data:
         print("⚠ Table rows not extracted properly")
         return None
 
+    print(f"📊 Successfully extracted {len(data)} data rows")
+
     try:
         df = pd.DataFrame(data, columns=headers)
+        print(f"✅ DataFrame created with shape: {df.shape}")
+        print(f"📋 Columns: {list(df.columns)}")
+        # Show first few rows for debugging
+        print("📊 First few rows:")
+        print(df.head())
         return df
     except Exception as e:
         print(f"⚠ Failed to create DataFrame: {e}")
@@ -68,10 +106,14 @@ def normalize_team_names(team_list, threshold=90):
 
 def get_leaderboard_dataframe():
     urls = [
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md", "Team name", "Sum"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md", "Team name", "Connectivity Test score"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name", "Point count"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name", "Point count"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md",
+         "Team name", "Sum"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md",
+         "Team name", "Connectivity Test score"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
+         "Point count"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name",
+         "Point count"),
     ]
 
     round_dfs = []
@@ -80,8 +122,22 @@ def get_leaderboard_dataframe():
     for idx, (url, team_col, score_col) in enumerate(urls, 1):
         print(f"Fetching round {idx} from: {url}")
         try:
-            md_text = requests.get(url).text
-            df = extract_markdown_table(md_text, team_col, score_col)  # Fixed: Added missing arguments
+            # Add timeout and better error handling
+            print(f"⏳ Making HTTP request...")
+            response = requests.get(url, timeout=30, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            response.raise_for_status()  # Raise an exception for bad status codes
+            print(f"✅ Successfully fetched round {idx} (Status: {response.status_code})")
+
+            md_text = response.text
+            print(f"📄 Content length: {len(md_text)} characters")
+
+            # Debug: Show first few lines of content
+            lines_preview = md_text.split('\n')[:5]
+            print(f"📋 First few lines: {lines_preview}")
+
+            df = extract_markdown_table(md_text, team_col, score_col)
             if df is None or team_col not in df.columns or score_col not in df.columns:
                 print(f"Warning: Could not find valid table with {team_col} and {score_col}")
                 continue
