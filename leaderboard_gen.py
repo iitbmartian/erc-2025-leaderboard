@@ -50,7 +50,33 @@ def generate_leaderboard():
       font-family: 'Inter', sans-serif;
       color: #e2e8f0;
     }}
-    .rank {{ ... }}  /* Keep all your existing CSS here */
+    .rank {{
+      font-weight: bold;
+      font-size: 1rem;
+      background-color: #334155;
+      border-radius: 9999px;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+    }}
+    
+    .rank-1 {{
+      background: linear-gradient(135deg, #fde047, #f59e0b);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }}
+    
+    .rank-2 {{
+      background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+      box-shadow: 0 0 10px rgba(156, 163, 175, 0.5);
+    }}
+    
+    .rank-3 {{
+      background: linear-gradient(135deg, #f97316, #b45309);
+      box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
+    }}
   </style>
 </head>
 <body>
