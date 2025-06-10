@@ -23,7 +23,7 @@ jobs:
           python-version: '3.9'
       
       - name: Install dependencies
-        run: pip install pandas
+        run:  pip install requests pandas beautifulsoup4
       
       - name: Generate HTML
         run: python leaderboard_gen.py
