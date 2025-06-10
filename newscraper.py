@@ -4,45 +4,67 @@ from bs4 import BeautifulSoup
 from rapidfuzz import process, fuzz
 from io import StringIO
 
-def extract_markdown_table(md_text, team_col, score_col):
-    try:
-        html = markdown_to_html(md_text)
-        df_list = pd.read_html(StringIO(html))  # ✅ FIXED: wrap with StringIO
-        for df in df_list:
-            df.columns = df.columns.map(lambda x: x.strip() if isinstance(x, str) else x)
-            if team_col in df.columns and score_col in df.columns:
-                df = df[[team_col, score_col]]
-                df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
-                return df
-    except Exception as e:
-        print(f"Failed to parse table: {e}")
-    return None
 
-def markdown_to_html(md_text):
-    soup = BeautifulSoup("", features="html.parser")
+def extract_markdown_table(md_text, team_col, score_col):
     lines = md_text.strip().splitlines()
-    table_lines = [line for line in lines if "|" in line]
-    html_table = "<table>\n"
-    for line in table_lines:
-        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
-        tag = "th" if lines.index(line) == 0 else "td"
-        html_table += "<tr>" + "".join(f"<{tag}>{cell}</{tag}>" for cell in cells) + "</tr>\n"
-    html_table += "</table>"
-    soup.append(BeautifulSoup(html_table, features="html.parser"))
-    return str(soup)
+    table_started = False
+    table_lines = []
+
+    for line in lines:
+        if team_col.lower() in line.lower() and score_col.lower() in line.lower():
+            table_started = True
+            table_lines.append(line)
+        elif table_started and line.strip().startswith("|"):
+            table_lines.append(line)
+        elif table_started and not line.strip():
+            break  # blank line = end of table
+
+    if len(table_lines) < 2:
+        print("⚠ Table not found or malformed")
+        return None
+
+    # Build list of rows
+    data = []
+    headers = [h.strip() for h in table_lines[0].split("|") if h.strip()]
+    for row in table_lines[1:]:
+        values = [v.strip() for v in row.split("|") if v.strip()]
+        if len(values) == len(headers):
+            data.append(values)
+
+    if not data:
+        print("⚠ Table rows not extracted properly")
+        return None
+
+    try:
+        df = pd.DataFrame(data, columns=headers)
+        return df
+    except Exception as e:
+        print(f"⚠ Failed to create DataFrame: {e}")
+        return None
+
 
 def normalize_team_names(team_list, threshold=90):
     canonical = []
     mapping = {}
 
     for team in team_list:
-        match, score, _ = process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio)
-        if match and score >= threshold:
-            mapping[team] = match
-        else:
+        if not canonical:  # If canonical list is empty, add the first team
             canonical.append(team)
             mapping[team] = team
+        else:
+            result = process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio)
+            if result is not None:
+                match, score, _ = result
+                if match and score >= threshold:
+                    mapping[team] = match
+                else:
+                    canonical.append(team)
+                    mapping[team] = team
+            else:
+                canonical.append(team)
+                mapping[team] = team
     return mapping
+
 
 def get_leaderboard_dataframe():
     urls = [
@@ -59,33 +81,32 @@ def get_leaderboard_dataframe():
         print(f"Fetching round {idx} from: {url}")
         try:
             md_text = requests.get(url).text
-            df = extract_markdown_table(md_text, team_col, score_col)
-            if df is None or df.empty:
+            df = extract_markdown_table(md_text, team_col, score_col)  # Fixed: Added missing arguments
+            if df is None or team_col not in df.columns or score_col not in df.columns:
                 print(f"Warning: Could not find valid table with {team_col} and {score_col}")
                 continue
 
+            df = df[[team_col, score_col]].copy()
             df.columns = ["Team", f"Round {idx}"]
             df[f"Round {idx}"] = pd.to_numeric(df[f"Round {idx}"], errors="coerce").fillna(0)
             round_dfs.append(df)
             all_teams.update(df["Team"].tolist())
         except Exception as e:
-            print(f"Error fetching or parsing round {idx}: {e}")
+            print(f"Error in round {idx}: {e}")
+            continue
 
     if not round_dfs:
         print("❌ No valid data found across all rounds.")
-        return pd.DataFrame(columns=["Team", "Total"])  # ✅ Prevent KeyError later
+        return pd.DataFrame(columns=["Team", "Total"])
 
-    # Fuzzy normalize team names
     all_names = [name for df in round_dfs for name in df["Team"]]
-    mapping = normalize_team_names(all_names)
+    name_map = normalize_team_names(all_names)
 
     for df in round_dfs:
-        df["Team"] = df["Team"].map(lambda name: mapping.get(name, name))
+        df["Team"] = df["Team"].map(lambda name: name_map.get(name, name))
 
-    # Merge into master DataFrame
-    master_df = pd.DataFrame({"Team": sorted(set(mapping.values()))})
-
-    for i in range(1, 8):
+    master_df = pd.DataFrame({"Team": sorted(set(name_map.values()))})
+    for i in range(1, 8):  # Always 7 rounds
         col = f"Round {i}"
         df = next((d for d in round_dfs if col in d.columns), None)
         if df is not None:

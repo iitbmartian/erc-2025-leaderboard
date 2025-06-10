@@ -1,6 +1,7 @@
 import pandas as pd
 from newscraper import get_leaderboard_dataframe
-from datetime import datetime
+from datetime import datetime, timezone
+
 
 def generate_leaderboard():
     df = get_leaderboard_dataframe()
@@ -9,6 +10,9 @@ def generate_leaderboard():
     # Rank with ties (same score = same rank)
     df["Position"] = df["Total"].rank(method="min", ascending=False).astype(int)
     df = df.sort_values(by=["Total", "Team"], ascending=[False, True])
+
+    print(df.head())
+    print("Shape:", df.shape)
 
     round_columns = [col for col in df.columns if col.startswith("Round")]
     output_path = "index.html"
@@ -62,17 +66,17 @@ def generate_leaderboard():
       justify-content: center;
       margin: auto;
     }}
-    
+
     .rank-1 {{
       background: linear-gradient(135deg, #fde047, #f59e0b);
       box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
     }}
-    
+
     .rank-2 {{
       background: linear-gradient(135deg, #e5e7eb, #9ca3af);
       box-shadow: 0 0 10px rgba(156, 163, 175, 0.5);
     }}
-    
+
     .rank-3 {{
       background: linear-gradient(135deg, #f97316, #b45309);
       box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
@@ -102,7 +106,7 @@ def generate_leaderboard():
           </tbody>
         </table>
         <div class="text-center text-slate-400 text-xs mt-6">
-          Last updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}
+          Last updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
         </div>
       </div>
     </div>
@@ -114,6 +118,7 @@ def generate_leaderboard():
         f.write(html)
 
     print(f"✅ Leaderboard written to {output_path}")
+
 
 if __name__ == "__main__":
     generate_leaderboard()
