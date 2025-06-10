@@ -1,7 +1,35 @@
 import requests
 import pandas as pd
-import io
-import re
+from bs4 import BeautifulSoup
+from rapidfuzz import process, fuzz
+from io import StringIO
+
+def extract_markdown_table(md_text, team_col, score_col):
+    try:
+        html = markdown_to_html(md_text)
+        df_list = pd.read_html(StringIO(html))  # ✅ FIXED: wrap with StringIO
+        for df in df_list:
+            df.columns = df.columns.map(lambda x: x.strip() if isinstance(x, str) else x)
+            if team_col in df.columns and score_col in df.columns:
+                df = df[[team_col, score_col]]
+                df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+                return df
+    except Exception as e:
+        print(f"Failed to parse table: {e}")
+    return None
+
+def markdown_to_html(md_text):
+    soup = BeautifulSoup("", features="html.parser")
+    lines = md_text.strip().splitlines()
+    table_lines = [line for line in lines if "|" in line]
+    html_table = "<table>\n"
+    for line in table_lines:
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        tag = "th" if lines.index(line) == 0 else "td"
+        html_table += "<tr>" + "".join(f"<{tag}>{cell}</{tag}>" for cell in cells) + "</tr>\n"
+    html_table += "</table>"
+    soup.append(BeautifulSoup(html_table, features="html.parser"))
+    return str(soup)
 
 def normalize_team_names(team_list, threshold=90):
     canonical = []
@@ -16,120 +44,59 @@ def normalize_team_names(team_list, threshold=90):
             mapping[team] = team
     return mapping
 
-
-def extract_markdown_table(text, team_col, score_col):
-    lines = text.splitlines()
-    header_idx = None
-
-    # Find the start of the table
-    for i, line in enumerate(lines):
-        if '|' in line and team_col in line and score_col in line:
-            header_idx = i
-            break
-
-    if header_idx is None or header_idx + 2 > len(lines):
-        return None
-
-    # Extract lines that form the table
-    table_lines = [lines[header_idx]]
-    i = header_idx + 1
-    while i < len(lines) and '|' in lines[i]:
-        table_lines.append(lines[i])
-        i += 1
-
-    table_text = '\n'.join(table_lines)
-    try:
-        df = pd.read_csv(io.StringIO(table_text), sep='\|', engine='python')
-        df = df.dropna(axis=1, how='all')  # Drop empty cols from parsing pipe edges
-        df.columns = [c.strip() for c in df.columns]
-        df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
-
-        # Normalize team names
-        df[team_col] = df[team_col].apply(normalize_team_name)
-
-        # Convert score column to numeric
-        df[score_col] = pd.to_numeric(df[score_col], errors='coerce').fillna(0)
-
-        # Group by normalized team names in case duplicates exist in same table
-        df = df.groupby(team_col, as_index=False)[score_col].sum()
-
-        return df
-    except Exception as e:
-        print(f"Failed to parse table: {e}")
-        return None
-
 def get_leaderboard_dataframe():
-    # Input list of tuples (url, team column, score column)
     urls = [
-                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md", "Team name", "Sum"),
-                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md", "Team name", "Connectivity Test score"),
-                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name", "Point count"),
-                 ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name", "Point count")
-             ]
-    all_teams = set()
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md", "Team name", "Sum"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md", "Team name", "Connectivity Test score"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name", "Point count"),
+        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name", "Point count"),
+    ]
+
     round_dfs = []
-    team_name_map = {}
+    all_teams = set()
 
     for idx, (url, team_col, score_col) in enumerate(urls, 1):
         print(f"Fetching round {idx} from: {url}")
         try:
             md_text = requests.get(url).text
+            df = extract_markdown_table(md_text, team_col, score_col)
+            if df is None or df.empty:
+                print(f"Warning: Could not find valid table with {team_col} and {score_col}")
+                continue
+
+            df.columns = ["Team", f"Round {idx}"]
+            df[f"Round {idx}"] = pd.to_numeric(df[f"Round {idx}"], errors="coerce").fillna(0)
+            round_dfs.append(df)
+            all_teams.update(df["Team"].tolist())
         except Exception as e:
-            print(f"Error fetching {url}: {e}")
-            continue
+            print(f"Error fetching or parsing round {idx}: {e}")
 
-        df = extract_markdown_table(md_text, team_col, score_col)
-        if df is None or df.empty:
-            print(f"Warning: Could not find valid table with {team_col} and {score_col}")
-            continue
+    if not round_dfs:
+        print("❌ No valid data found across all rounds.")
+        return pd.DataFrame(columns=["Team", "Total"])  # ✅ Prevent KeyError later
 
-        display_names = {}
-        for team in df[team_col]:
-            norm = normalize_team_names(team)
-            if norm not in team_name_map:
-                team_name_map[norm] = team
-            display_names[norm] = team_name_map[norm]
+    # Fuzzy normalize team names
+    all_names = [name for df in round_dfs for name in df["Team"]]
+    mapping = normalize_team_names(all_names)
 
-        df["Team"] = df[team_col].apply(lambda x: team_name_map.get(x, x))
-        df = df[["Team", score_col]]
-        df.columns = ["Team", f"Round {idx}"]
-        df[f"Round {idx}"] = pd.to_numeric(df[f"Round {idx}"], errors="coerce").fillna(0)
-        round_dfs.append(df)
-        all_teams.update(df["Team"].tolist())
-
-    # Create master dataframe with all teams
-    master_df = pd.DataFrame({"Team": sorted(all_teams)})
-
-    # Collect all team names from all rounds
-    all_team_names = []
     for df in round_dfs:
-        all_team_names.extend(df["Team"].tolist())
+        df["Team"] = df["Team"].map(lambda name: mapping.get(name, name))
 
-    # Generate mapping
-    team_name_mapping = normalize_team_names(all_team_names)
+    # Merge into master DataFrame
+    master_df = pd.DataFrame({"Team": sorted(set(mapping.values()))})
 
-    # Apply mapping to each round's dataframe
-    for i in range(len(round_dfs)):
-        round_dfs[i]["Team"] = round_dfs[i]["Team"].map(team_name_mapping)
-
-    # Ensure 7 rounds are represented
     for i in range(1, 8):
-        round_name = f"Round {i}"
-        round_df = next((df for df in round_dfs if round_name in df.columns), None)
-        if round_df is not None:
-            master_df = master_df.merge(round_df, on="Team", how="left")
+        col = f"Round {i}"
+        df = next((d for d in round_dfs if col in d.columns), None)
+        if df is not None:
+            master_df = master_df.merge(df, on="Team", how="left")
         else:
-            master_df[round_name] = 0
+            master_df[col] = 0
 
     master_df.fillna(0, inplace=True)
-    round_columns = [f"Round {i}" for i in range(1, 8)]
-    master_df["Total"] = master_df[round_columns].sum(axis=1)
+    for col in [f"Round {i}" for i in range(1, 8)]:
+        master_df[col] = master_df[col].astype(int)
+
+    master_df["Total"] = master_df[[f"Round {i}" for i in range(1, 8)]].sum(axis=1)
 
     return master_df
-
-
-if __name__ == "__main__":
-    df = get_leaderboard_dataframe()
-    print(df)
-    # Optionally save to CSV
-    # df.to_csv("final_scores.csv", index=False)

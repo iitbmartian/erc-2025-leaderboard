@@ -9,18 +9,7 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: url('logo.png') no-repeat center center fixed;
-      background-size: cover;
       color: #e2e8f0;
-    }
-    .overlay {
-      background-color: rgba(15, 23, 42, 0.7);
-      min-height: 100vh;
-      padding: 2rem;
-    }
-    .glow {
-      text-shadow: 0 0 10px rgba(255, 100, 100, 0.6);
-      animation: glowAnimation 1.5s ease-in-out infinite;
     }
     .rank {
       font-weight: bold;
@@ -34,49 +23,30 @@
       justify-content: center;
       margin: auto;
     }
+    
     .rank-1 {
       background: linear-gradient(135deg, #fde047, #f59e0b);
       box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
     }
+    
     .rank-2 {
       background: linear-gradient(135deg, #e5e7eb, #9ca3af);
       box-shadow: 0 0 10px rgba(156, 163, 175, 0.5);
     }
+    
     .rank-3 {
       background: linear-gradient(135deg, #f97316, #b45309);
       box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
     }
-    .total-score {
-      font-weight: bold;
-      background-color: #ef4444;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 8px;
-      display: inline-block;
-    }
-    .empty-cell {
-      color: #64748b;
-      font-style: italic;
-    }
-    .mars-deco {
-      max-width: 120px;
-      margin: 0 auto;
-    }
-    @keyframes glowAnimation {
-      0% { text-shadow: 0 0 10px rgba(255, 100, 100, 0.6); }
-      50% { text-shadow: 0 0 20px rgba(255, 200, 200, 1); }
-      100% { text-shadow: 0 0 10px rgba(255, 100, 100, 0.6); }
-    }
   </style>
 </head>
-<body>
+<body style="background-color: #FF7F50;">
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-6">
-        <img src="logo.png"/>
-        <h1 class="text-3xl font-bold glow">🚀 Mars Robotics Leaderboard</h1>
-        <p class="text-sm text-slate-400 italic mt-1">Tracking the best teams on the red planet!</p>
-      </div>
+        <div class="flex flex-col items-center mb-6">
+          <img src="logo.png" alt="ERC Logo" class="w-80 h-auto mb-4" />
+          <h1 class="text-3xl font-bold glow text-center">Live (kinda) Leaderboard</h1>
+        </div>
 
       <div class="overflow-x-auto rounded-lg shadow-md">
         <table class="min-w-full divide-y divide-slate-700 bg-slate-800 text-sm text-center">
@@ -84,191 +54,16 @@
             <tr>
               <th class="px-4 py-3">Position</th>
               <th class="px-4 py-3">Team</th>
-              <th class="px-4 py-3">Round 1</th><th class="px-4 py-3">Round 2</th><th class="px-4 py-3">Round 3</th><th class="px-4 py-3">Round 4</th>
+              
               <th class="px-4 py-3">Total</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700">
             
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank-1">1</div></td>
-          <td>sapienzatechnologyteam</td>
-          <td>41</td><td>20</td><td>4</td><td>15</td>
-          <td><span class="total-score">80</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank-2">2</div></td>
-          <td>crissrobotics</td>
-          <td>37</td><td>20</td><td>15</td><td class="empty-cell">-</td>
-          <td><span class="total-score">72</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank-3">3</div></td>
-          <td>shunya</td>
-          <td>39</td><td>20</td><td>7</td><td class="empty-cell">-</td>
-          <td><span class="total-score">66</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">4</div></td>
-          <td>iitbmarsroverteam</td>
-          <td>38</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">63</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">5</div></td>
-          <td>mindcloud</td>
-          <td>32</td><td>16</td><td class="empty-cell">-</td><td>15</td>
-          <td><span class="total-score">63</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">6</div></td>
-          <td>terrabots</td>
-          <td>32</td><td>20</td><td>10</td><td class="empty-cell">-</td>
-          <td><span class="total-score">62</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">7</div></td>
-          <td>psgteamaurora</td>
-          <td>32</td><td>18</td><td>8</td><td class="empty-cell">-</td>
-          <td><span class="total-score">58</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">8</div></td>
-          <td>makercie</td>
-          <td>33</td><td>20</td><td>3</td><td class="empty-cell">-</td>
-          <td><span class="total-score">56</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">9</div></td>
-          <td>djsantariksh</td>
-          <td>31</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">56</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">10</div></td>
-          <td>nspace</td>
-          <td>31</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">56</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">11</div></td>
-          <td>ares</td>
-          <td>29</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">54</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">12</div></td>
-          <td>roboconiitr</td>
-          <td>31</td><td>20</td><td>3</td><td class="empty-cell">-</td>
-          <td><span class="total-score">54</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">13</div></td>
-          <td>putlunarteam</td>
-          <td>23</td><td>20</td><td>3</td><td>5</td>
-          <td><span class="total-score">51</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">14</div></td>
-          <td>interplanetarbuetmarsroverteam</td>
-          <td>25</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">50</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">15</div></td>
-          <td>amogh</td>
-          <td>28</td><td>20</td><td>2</td><td class="empty-cell">-</td>
-          <td><span class="total-score">50</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">16</div></td>
-          <td>infernodtu</td>
-          <td>37</td><td>8</td><td>2</td><td class="empty-cell">-</td>
-          <td><span class="total-score">47</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">17</div></td>
-          <td>projectred</td>
-          <td>20</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">45</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">18</div></td>
-          <td>rival</td>
-          <td>19</td><td>20</td><td>5</td><td class="empty-cell">-</td>
-          <td><span class="total-score">44</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">19</div></td>
-          <td>csarobotics</td>
-          <td>31</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td>
-          <td><span class="total-score">31</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">20</div></td>
-          <td>horizon</td>
-          <td>23</td><td>4</td><td>2</td><td class="empty-cell">-</td>
-          <td><span class="total-score">29</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">21</div></td>
-          <td>banglabotxplorer</td>
-          <td>10</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td>
-          <td><span class="total-score">10</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">22</div></td>
-          <td>eltestudenttechlab</td>
-          <td>9</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td>
-          <td><span class="total-score">9</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">23</div></td>
-          <td>blazers</td>
-          <td>5</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td>
-          <td><span class="total-score">5</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">24</div></td>
-          <td>lightpheniox</td>
-          <td>4</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td>
-          <td><span class="total-score">4</span></td>
-        </tr>
-        
-        <tr class="hover:bg-slate-700 transition-all duration-150">
-          <td><div class="rank rank">25</div></td>
-          <td></td>
-          <td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td><td class="empty-cell">-</td>
-          <td><span class="total-score">0</span></td>
-        </tr>
-        
           </tbody>
         </table>
         <div class="text-center text-slate-400 text-xs mt-6">
-          Last updated: 2025-06-10 16:54:46 UTC
+          Last updated: 2025-06-10 17:44:20 UTC
         </div>
       </div>
     </div>
