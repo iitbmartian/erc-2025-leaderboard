@@ -81,9 +81,9 @@ def extract_markdown_table(md_text, team_col, score_col):
         return None
 
 
-def normalize_team_names(team_list, threshold=90):
+def normalize_team_names(team_list, threshold=85):
     """
-    Normalize team names using fuzzy matching with more conservative approach
+    Normalize team names using smart fuzzy matching
     """
     canonical = []
     mapping = {}
@@ -103,58 +103,76 @@ def normalize_team_names(team_list, threshold=90):
             mapping[team] = team
             print(f"🏷️  Set canonical: '{team}'")
         else:
-            # Use only token_sort_ratio for more precise matching
-            # This handles word order differences but is less aggressive than partial matching
-            result = process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio)
+            best_match = None
+            best_score = 0
+            should_merge = False
 
-            if result is not None:
-                best_match, score, _ = result
+            for canonical_name in canonical:
+                team_lower = team.lower().strip()
+                canonical_lower = canonical_name.lower().strip()
 
-                # Additional checks to prevent false positives
-                should_merge = False
+                # Get fuzzy match score
+                score = fuzz.token_sort_ratio(team_lower, canonical_lower)
 
-                if score >= threshold:
-                    # Extra validation for high-confidence matches
-                    if score >= 95:
+                # Check for exact subset matches (handles "Team X" vs "X" cases)
+                team_words = set(team_lower.split())
+                canonical_words = set(canonical_lower.split())
+
+                # High confidence matches
+                if score >= 95:
+                    should_merge = True
+                    best_match = canonical_name
+                    best_score = score
+                    break
+
+                # Subset matching - one name contains all words of the other
+                elif (team_words.issubset(canonical_words) or canonical_words.issubset(team_words)):
+                    # Additional check: make sure they share significant content
+                    if len(team_words & canonical_words) >= min(len(team_words), len(canonical_words)):
                         should_merge = True
-                    elif score >= threshold:
-                        # For moderate confidence, do additional checks
-                        # Check if one name is contained in the other (handles abbreviations)
-                        team_lower = team.lower()
-                        match_lower = best_match.lower()
+                        best_match = canonical_name
+                        best_score = score
+                        print(
+                            f"🔍 Subset match: '{team}' <-> '{canonical_name}' (words: {team_words} <-> {canonical_words})")
+                        break
 
-                        # Allow merging if one is clearly an abbreviation/subset of the other
-                        if (team_lower in match_lower or match_lower in team_lower):
-                            should_merge = True
-                        # Allow merging if they have significant word overlap
-                        elif len(set(team_lower.split()) & set(match_lower.split())) >= 2:
-                            should_merge = True
+                # Moderate confidence with word overlap check
+                elif score >= threshold:
+                    common_words = team_words & canonical_words
+                    # Require at least 2 common words AND those words make up most of the shorter name
+                    min_words = min(len(team_words), len(canonical_words))
+                    if len(common_words) >= 2 and len(common_words) >= min_words * 0.7:
+                        # Extra safety: avoid merging if one name is very generic
+                        generic_words = {'team', 'robotics', 'robot', 'rover', 'mars', 'club', 'group'}
+                        if not (team_words.issubset(generic_words) or canonical_words.issubset(generic_words)):
+                            if score > best_score:
+                                should_merge = True
+                                best_match = canonical_name
+                                best_score = score
 
-                if should_merge:
-                    # Choose the more complete/longer name as canonical
-                    if len(team) > len(best_match):
-                        # Replace the canonical name with the longer version
-                        canonical_idx = canonical.index(best_match)
-                        canonical[canonical_idx] = team
-                        # Update all existing mappings that pointed to the old canonical
-                        for k, v in mapping.items():
-                            if v == best_match:
-                                mapping[k] = team
-                        mapping[team] = team
-                        print(f"🔄 Updated canonical '{best_match}' -> '{team}' (score: {score})")
-                    else:
-                        mapping[team] = best_match
-                        print(f"🔗 Merged '{team}' -> '{best_match}' (score: {score})")
-                else:
-                    # No good match found, add as new canonical
-                    canonical.append(team)
+            if should_merge and best_match:
+                # Choose the more complete/longer name as canonical
+                if len(team) > len(best_match):
+                    # Replace the canonical name with the longer version
+                    canonical_idx = canonical.index(best_match)
+                    canonical[canonical_idx] = team
+                    # Update all existing mappings that pointed to the old canonical
+                    for k, v in mapping.items():
+                        if v == best_match:
+                            mapping[k] = team
                     mapping[team] = team
-                    print(f"🏷️  New canonical: '{team}' (best match: '{best_match}', score: {score})")
+                    print(f"🔄 Updated canonical '{best_match}' -> '{team}' (score: {best_score})")
+                else:
+                    mapping[team] = best_match
+                    print(f"🔗 Merged '{team}' -> '{best_match}' (score: {best_score})")
             else:
-                # No match found at all
+                # No good match found, add as new canonical
                 canonical.append(team)
                 mapping[team] = team
-                print(f"🏷️  New canonical: '{team}' (no matches found)")
+                if best_match:
+                    print(f"🏷️  New canonical: '{team}' (rejected match: '{best_match}', score: {best_score})")
+                else:
+                    print(f"🏷️  New canonical: '{team}' (no matches found)")
 
     # Apply mapping to all original teams (including duplicates)
     final_mapping = {}
