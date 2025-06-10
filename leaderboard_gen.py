@@ -44,6 +44,7 @@ def generate_leaderboard(data_dir="data"):
     with open("templates/index.html") as f:
         template = Template(f.read())
 
+
     mars_header = """
     <div class="text-center mb-6">
         <img src="https://mars.nasa.gov/system/news_items/main_images/10512_PIA25284-Rover-stretch-final_800.jpg" alt="Mars Rover" class="mars-deco mb-2" />
