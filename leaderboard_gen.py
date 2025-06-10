@@ -38,7 +38,7 @@ html = f"""
 <head>
   <meta charset=\"UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>
-  <title>Robotics Competition Leaderboard</title>
+  <title>European Rover Challenge</title>
   <script src=\"https://cdn.tailwindcss.com\"></script>
   <style>
     body {{ font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }}
@@ -53,7 +53,7 @@ html = f"""
 </head>
 <body class=\"p-6\">
   <div class=\"max-w-7xl mx-auto\">
-    <h1 class=\"text-3xl font-bold mb-6 glow text-center\">🏆 Robotics Competition Leaderboard</h1>
+    <h1 class=\"text-3xl font-bold mb-6 glow text-center\">European Rover Challenge</h1>
     <div class=\"overflow-x-auto rounded-lg shadow-md\">
       <table class=\"min-w-full divide-y divide-slate-700 bg-slate-800 text-sm text-center\">
         <thead class=\"bg-slate-900 text-slate-300 uppercase tracking-wider text-xs\">
