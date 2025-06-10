@@ -23,7 +23,7 @@ jobs:
           python-version: '3.9'
       
       - name: Install dependencies
-        run:  pip install requests pandas beautifulsoup4 jinja2
+        run:  pip install requests pandas beautifulsoup4 jinja2 rapidfuzz
       
       - name: Generate HTML
         run: python leaderboard_gen.py

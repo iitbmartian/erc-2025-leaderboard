@@ -3,13 +3,19 @@ import pandas as pd
 import io
 import re
 
-def normalize_team_name(name):
-    if not isinstance(name, str):
-        return name
-    name = name.strip().lower()
-    name = re.sub(r'[^a-z0-9]', '', name)  # remove non-alphanumeric characters
-    name = re.sub(r'^(team|the)', '', name)  # remove common prefixes
-    return name
+def normalize_team_names(team_list, threshold=90):
+    canonical = []
+    mapping = {}
+
+    for team in team_list:
+        match, score, _ = process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio)
+        if match and score >= threshold:
+            mapping[team] = match
+        else:
+            canonical.append(team)
+            mapping[team] = team
+    return mapping
+
 
 def extract_markdown_table(text, team_col, score_col):
     lines = text.splitlines()
@@ -79,7 +85,7 @@ def get_leaderboard_dataframe():
 
         display_names = {}
         for team in df[team_col]:
-            norm = normalize_team_name(team)
+            norm = normalize_team_names(team)
             if norm not in team_name_map:
                 team_name_map[norm] = team
             display_names[norm] = team_name_map[norm]
@@ -93,6 +99,18 @@ def get_leaderboard_dataframe():
 
     # Create master dataframe with all teams
     master_df = pd.DataFrame({"Team": sorted(all_teams)})
+
+    # Collect all team names from all rounds
+    all_team_names = []
+    for df in round_dfs:
+        all_team_names.extend(df["Team"].tolist())
+
+    # Generate mapping
+    team_name_mapping = normalize_team_names(all_team_names)
+
+    # Apply mapping to each round's dataframe
+    for i in range(len(round_dfs)):
+        round_dfs[i]["Team"] = round_dfs[i]["Team"].map(team_name_mapping)
 
     # Ensure 7 rounds are represented
     for i in range(1, 8):
