@@ -4,7 +4,9 @@ from datetime import datetime
 import requests
 
 # Fetch the leaderboard data directly from newscraper
-df = get_leaderboard_dataframe()
+df = get_leaderboard_dataframe().sort_values(by="Total", ascending=False).reset_index(drop=True)
+for idx, row in df.iterrows():
+    position = idx + 1
 
 # Output HTML file path
 output_path = "index.html"
