@@ -48,7 +48,7 @@ def generate_leaderboard():
   <style>
     body {{
       font-family: 'Inter', sans-serif;
-      color: #FF7F50;
+      color: #e2e8f0;
     }}
     .rank {{
       font-weight: bold;
@@ -79,7 +79,7 @@ def generate_leaderboard():
     }}
   </style>
 </head>
-<body>
+<body style="background-color: #FF7F50;">
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col items-center mb-6">
