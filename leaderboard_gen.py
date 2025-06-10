@@ -3,9 +3,9 @@ from newscraper import get_leaderboard_dataframe
 from datetime import datetime, timezone
 
 
-def generate_leaderboard():
-    df = get_leaderboard_dataframe()
-    df["Total"] = df[[col for col in df.columns if col.startswith("Round")]].sum(axis=1)
+def generate_leaderboard(rounds_config=None):
+    df = get_leaderboard_dataframe(rounds_config)
+    df["Total"] = df[[col for col in df.columns if col.startswith("Round") or col not in ["Team", "Total"]]].sum(axis=1)
 
     # Rank with ties (same score = same rank)
     df["Position"] = df["Total"].rank(method="min", ascending=False).astype(int)
@@ -14,7 +14,7 @@ def generate_leaderboard():
     print(df.head())
     print("Shape:", df.shape)
 
-    round_columns = [col for col in df.columns if col.startswith("Round")]
+    round_columns = [col for col in df.columns if col not in ["Team", "Total", "Position"]]
     output_path = "index.html"
 
     # Generate HTML table rows
@@ -121,4 +121,16 @@ def generate_leaderboard():
 
 
 if __name__ == "__main__":
+    # Example usage with custom rounds configuration
+    # You can now pass rounds_config to customize which rounds to include
+    # Format: (round_number, round_name, url, team_col, score_col)
+
+    # Default behavior (if you don't pass rounds_config):
     generate_leaderboard()
+
+    # Or customize like this:
+    # custom_rounds = [
+    #     (1, "Qualification Round", "https://example.com/round1.md", "Team name", "Sum"),
+    #     (2, "Technical Challenge", "https://example.com/round2.md", "Team name", "Score"),
+    # ]
+    # generate_leaderboard(custom_rounds)

@@ -104,23 +104,29 @@ def normalize_team_names(team_list, threshold=90):
     return mapping
 
 
-def get_leaderboard_dataframe():
-    urls = [
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md",
-         "Team name", "Sum"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md",
-         "Team name", "Connectivity Test score"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
-         "Point count"),
-        ("https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md", "Team name",
-         "Point count"),
-    ]
+def get_leaderboard_dataframe(rounds_config=None):
+    # Default configuration if none provided
+    if rounds_config is None:
+        rounds_config = [
+            (1, "Qualification",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md",
+             "Team name", "Sum"),
+            (2, "Connectivity Test",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md",
+             "Team name", "Connectivity Test score"),
+            (6, "Jury Points",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
+             "Point count"),
+            (6, "Social Excellence",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md",
+             "Team name", "Point count"),
+        ]
 
     round_dfs = []
     all_teams = set()
 
-    for idx, (url, team_col, score_col) in enumerate(urls, 1):
-        print(f"Fetching round {idx} from: {url}")
+    for round_num, round_name, url, team_col, score_col in rounds_config:
+        print(f"Fetching {round_name} (Round {round_num}) from: {url}")
         try:
             # Add timeout and better error handling
             print(f"⏳ Making HTTP request...")
@@ -128,7 +134,7 @@ def get_leaderboard_dataframe():
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             })
             response.raise_for_status()  # Raise an exception for bad status codes
-            print(f"✅ Successfully fetched round {idx} (Status: {response.status_code})")
+            print(f"✅ Successfully fetched {round_name} (Status: {response.status_code})")
 
             md_text = response.text
             print(f"📄 Content length: {len(md_text)} characters")
@@ -143,12 +149,13 @@ def get_leaderboard_dataframe():
                 continue
 
             df = df[[team_col, score_col]].copy()
-            df.columns = ["Team", f"Round {idx}"]
-            df[f"Round {idx}"] = pd.to_numeric(df[f"Round {idx}"], errors="coerce").fillna(0)
+            df.columns = ["Team", round_name]
+            df[round_name] = pd.to_numeric(df[round_name], errors="coerce").fillna(0)
+            df["_round_num"] = round_num  # Store round number for sorting
             round_dfs.append(df)
             all_teams.update(df["Team"].tolist())
         except Exception as e:
-            print(f"Error in round {idx}: {e}")
+            print(f"Error in {round_name}: {e}")
             continue
 
     if not round_dfs:
@@ -162,18 +169,25 @@ def get_leaderboard_dataframe():
         df["Team"] = df["Team"].map(lambda name: name_map.get(name, name))
 
     master_df = pd.DataFrame({"Team": sorted(set(name_map.values()))})
+
+    # Create columns for all 7 rounds, but populate with actual round names
     for i in range(1, 8):  # Always 7 rounds
-        col = f"Round {i}"
-        df = next((d for d in round_dfs if col in d.columns), None)
-        if df is not None:
-            master_df = master_df.merge(df, on="Team", how="left")
+        matching_dfs = [df for df in round_dfs if df["_round_num"].iloc[0] == i]
+        if matching_dfs:
+            for df in matching_dfs:
+                round_col = [col for col in df.columns if col not in ["Team", "_round_num"]][0]
+                df_to_merge = df[["Team", round_col]].copy()
+                master_df = master_df.merge(df_to_merge, on="Team", how="left")
         else:
-            master_df[col] = 0
+            master_df[f"Round {i}"] = 0
 
     master_df.fillna(0, inplace=True)
-    for col in [f"Round {i}" for i in range(1, 8)]:
+
+    # Convert all round columns to int
+    round_columns = [col for col in master_df.columns if col != "Team"]
+    for col in round_columns:
         master_df[col] = master_df[col].astype(int)
 
-    master_df["Total"] = master_df[[f"Round {i}" for i in range(1, 8)]].sum(axis=1)
+    master_df["Total"] = master_df[round_columns].sum(axis=1)
 
     return master_df
