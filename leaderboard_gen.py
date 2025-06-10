@@ -1,6 +1,7 @@
 import pandas as pd
 from newscraper import get_leaderboard_dataframe
 from datetime import datetime
+import requests
 
 # Fetch the leaderboard data directly from newscraper
 df = get_leaderboard_dataframe()
