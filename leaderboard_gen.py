@@ -109,7 +109,7 @@ def generate_leaderboard():
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-6">
-        <img src="https://mars.nasa.gov/system/news_items/main_images/10512_PIA25284-Rover-stretch-final_800.jpg" alt="Mars Rover" class="mars-deco mb-2" />
+        <img src="logo.png"/>
         <h1 class="text-3xl font-bold glow">🚀 Mars Robotics Leaderboard</h1>
         <p class="text-sm text-slate-400 italic mt-1">Tracking the best teams on the red planet!</p>
       </div>
