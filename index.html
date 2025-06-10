@@ -8,13 +8,13 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Mars_surface_by_Curiosity.jpg/1280px-Mars_surface_by_Curiosity.jpg') no-repeat center center fixed;
+      background: url('https://mars.nasa.gov/system/news_items/main_images/10514_PIA25284-Figure3-final-full_1024.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #e2e8f0;
     }
 
     .overlay {
-      background-color: rgba(15, 23, 42, 0.9);
+      background-color: rgba(15, 23, 42, 0.7);
       min-height: 100vh;
       padding: 2rem;
     }
@@ -69,18 +69,26 @@
       max-width: 120px;
       margin: 0 auto;
     }
+
+    @keyframes glowAnimation {
+      0% { text-shadow: 0 0 10px rgba(255, 100, 100, 0.6); }
+      50% { text-shadow: 0 0 20px rgba(255, 200, 200, 1); }
+      100% { text-shadow: 0 0 10px rgba(255, 100, 100, 0.6); }
+    }
+
+    h1.glow {
+      animation: glowAnimation 1.5s ease-in-out infinite;
+    }
   </style>
 </head>
 <body>
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-6">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Mars_Rover_Drawing.png/400px-Mars_Rover_Drawing.png" alt="Mars Rover" class="mars-deco mb-2" />
+        <img src="https://mars.nasa.gov/system/news_items/main_images/10512_PIA25284-Rover-stretch-final_800.jpg" alt="Mars Rover" class="mars-deco mb-2" />
         <h1 class="text-3xl font-bold glow">🚀 Mars Robotics Leaderboard</h1>
         <p class="text-sm text-slate-400 italic mt-1">Tracking the best teams on the red planet!</p>
       </div>
 
       <div class="overflow-x-auto rounded-lg shadow-md">
         <!-- 🧠 YOUR TABLE STAYS UNTOUCHED BELOW -->
-        <!-- Keep your existing table and rows exactly as they are -->
-        <!-- ... beginning of the table unchanged ... -->
