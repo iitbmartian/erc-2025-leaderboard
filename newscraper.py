@@ -81,49 +81,92 @@ def extract_markdown_table(md_text, team_col, score_col):
         return None
 
 
-def normalize_team_names(team_list, threshold=85):
+def normalize_team_names(team_list, threshold=90):
+    """
+    Normalize team names using fuzzy matching with more conservative approach
+    """
     canonical = []
     mapping = {}
 
-    # Sort by length (shorter names first) to make shorter names canonical
-    sorted_teams = sorted(set(team_list), key=len)
+    # Remove empty/null team names
+    clean_teams = [team.strip() for team in team_list if team and str(team).strip()]
+    unique_teams = list(set(clean_teams))
+
+    # Sort by frequency first (most common names become canonical), then by length (longer names preferred)
+    team_counts = {team: clean_teams.count(team) for team in unique_teams}
+    sorted_teams = sorted(unique_teams, key=lambda x: (-team_counts[x], -len(x)))
 
     for team in sorted_teams:
-        if not canonical:  # If canonical list is empty, add the first team
+        if not canonical:
+            # First team becomes canonical
             canonical.append(team)
             mapping[team] = team
+            print(f"🏷️  Set canonical: '{team}'")
         else:
-            # Try multiple scoring methods
-            results = [
-                process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio),
-                process.extractOne(team, canonical, scorer=fuzz.partial_ratio),
-                process.extractOne(team, canonical, scorer=fuzz.ratio)
-            ]
+            # Use only token_sort_ratio for more precise matching
+            # This handles word order differences but is less aggressive than partial matching
+            result = process.extractOne(team, canonical, scorer=fuzz.token_sort_ratio)
 
-            best_match = None
-            best_score = 0
+            if result is not None:
+                best_match, score, _ = result
 
-            for result in results:
-                if result is not None:
-                    match, score, _ = result
-                    if score > best_score:
-                        best_match = match
-                        best_score = score
+                # Additional checks to prevent false positives
+                should_merge = False
 
-            if best_match and best_score >= threshold:
-                mapping[team] = best_match
-                print(f"🔗 Normalized '{team}' -> '{best_match}' (score: {best_score})")
+                if score >= threshold:
+                    # Extra validation for high-confidence matches
+                    if score >= 95:
+                        should_merge = True
+                    elif score >= threshold:
+                        # For moderate confidence, do additional checks
+                        # Check if one name is contained in the other (handles abbreviations)
+                        team_lower = team.lower()
+                        match_lower = best_match.lower()
+
+                        # Allow merging if one is clearly an abbreviation/subset of the other
+                        if (team_lower in match_lower or match_lower in team_lower):
+                            should_merge = True
+                        # Allow merging if they have significant word overlap
+                        elif len(set(team_lower.split()) & set(match_lower.split())) >= 2:
+                            should_merge = True
+
+                if should_merge:
+                    # Choose the more complete/longer name as canonical
+                    if len(team) > len(best_match):
+                        # Replace the canonical name with the longer version
+                        canonical_idx = canonical.index(best_match)
+                        canonical[canonical_idx] = team
+                        # Update all existing mappings that pointed to the old canonical
+                        for k, v in mapping.items():
+                            if v == best_match:
+                                mapping[k] = team
+                        mapping[team] = team
+                        print(f"🔄 Updated canonical '{best_match}' -> '{team}' (score: {score})")
+                    else:
+                        mapping[team] = best_match
+                        print(f"🔗 Merged '{team}' -> '{best_match}' (score: {score})")
+                else:
+                    # No good match found, add as new canonical
+                    canonical.append(team)
+                    mapping[team] = team
+                    print(f"🏷️  New canonical: '{team}' (best match: '{best_match}', score: {score})")
             else:
+                # No match found at all
                 canonical.append(team)
                 mapping[team] = team
+                print(f"🏷️  New canonical: '{team}' (no matches found)")
 
     # Apply mapping to all original teams (including duplicates)
     final_mapping = {}
     for team in team_list:
-        final_mapping[team] = mapping[team]
+        clean_team = str(team).strip() if team else ""
+        if clean_team:
+            final_mapping[team] = mapping.get(clean_team, clean_team)
+        else:
+            final_mapping[team] = team  # Keep empty/null values as-is
 
+    print(f"📊 Normalization complete: {len(unique_teams)} unique -> {len(canonical)} canonical")
     return final_mapping
-
 
 def get_leaderboard_dataframe(rounds_config=None):
     # Default configuration if none provided
