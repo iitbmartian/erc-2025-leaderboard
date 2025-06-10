@@ -48,7 +48,7 @@ def generate_leaderboard():
   <style>
     body {{
       font-family: 'Inter', sans-serif;
-      color: #e2e8f0;
+      color: #FF7F50;
     }}
     .rank {{
       font-weight: bold;
