@@ -106,11 +106,11 @@ def generate_leaderboard():
 <body>
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-6">
-        <img src="logo.png"/>
-        <h1 class="text-3xl font-bold glow">🚀 Mars Robotics Leaderboard</h1>
-        <p class="text-sm text-slate-400 italic mt-1">Tracking the best teams on the red planet!</p>
-      </div>
+        <div class="flex flex-col items-center mb-6">
+          <img src="logo.png" alt="ERC Logo" class="w-48 h-auto mb-4" />
+          <h1 class="text-3xl font-bold glow text-center">🚀 Mars Robotics Leaderboard</h1>
+          <p class="text-sm text-slate-400 italic mt-1 text-center">Tracking the best teams on the red planet!</p>
+        </div>
 
       <div class="overflow-x-auto rounded-lg shadow-md">
         <table class="min-w-full divide-y divide-slate-700 bg-slate-800 text-sm text-center">
