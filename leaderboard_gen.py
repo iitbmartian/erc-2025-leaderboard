@@ -18,13 +18,15 @@ for idx, row in df.iterrows():
     team = row["Team"]
     total = int(row["Total"])
     round_scores = [
-        f'<td class="">{int(row[col]) if row[col] != 0 else "<td class=\"empty-cell\">-</td>"}</td>'
+        f'<td class="">{int(row[col])}</td>' if row[col] != 0 else '<td class="empty-cell">-</td>'
         if row[col] != 0 else '<td class="empty-cell">-</td>'
         for col in round_columns
     ]
     rank_class = f"rank-{position}" if position <= 3 else "rank"
     row_html = f"<tr class=\"hover:bg-slate-700 transition-all duration-150\"><td><div class=\"rank {rank_class}\">{position}</div></td><td class=\"\">{team}</td>{''.join(round_scores)}<td><span class=\"total-score\">{total}</span></td></tr>"
     rows_html += row_html + "\n"
+
+round_headers = ''.join([f'<th class="px-4 py-3">{col}</th>' for col in round_columns])
 
 # Generate final HTML
 html = f"""
@@ -54,9 +56,9 @@ html = f"""
         <thead class=\"bg-slate-900 text-slate-300 uppercase tracking-wider text-xs\">
           <tr>
             <th class=\"px-4 py-3\">Position</th>
-            <th class=\"px-4 py-3\">Team Name</th>
-            {''.join([f'<th class=\"px-4 py-3\">{col}</th>' for col in round_columns])}
-            <th class=\"px-4 py-3\">Total</th>
+                <th class="px-4 py-3">Team Name</th>
+                {round_headers}
+                <th class="px-4 py-3">Total</th>
           </tr>
         </thead>
         <tbody class=\"divide-y divide-slate-700\">
