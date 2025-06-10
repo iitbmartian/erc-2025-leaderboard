@@ -45,7 +45,7 @@ def generate_leaderboard():
   <style>
     body {{
       font-family: 'Inter', sans-serif;
-      background: url('https://mars.nasa.gov/system/news_items/main_images/10514_PIA25284-Figure3-final-full_1024.jpg') no-repeat center center fixed;
+      background: url('logo.png') no-repeat center center fixed;
       background-size: cover;
       color: #e2e8f0;
     }}
