@@ -43,12 +43,6 @@ def generate_leaderboard():
   <title>Mars Robotics Leaderboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {{
-      font-family: 'Inter', sans-serif;
-      background: url('logo.png') no-repeat center center fixed;
-      background-size: cover;
-      color: #e2e8f0;
-    }}
     .overlay {{
       background-color: rgba(15, 23, 42, 0.7);
       min-height: 100vh;
