@@ -124,7 +124,21 @@ if __name__ == "__main__":
     # Format: (round_number, round_name, url, team_col, score_col)
 
     # Default behavior (if you don't pass rounds_config):
-    generate_leaderboard()
+    rounds = [
+            (1, "Qualification",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md",
+             "Team name", "Sum"),
+            (2, "Connectivity Test",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/connectivity_test_1_results.md",
+             "Team name", "Connectivity Test score"),
+            (6, "Jury Points",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/jury_points.md", "Team name",
+             "Point count"),
+            (7, "Social Excellence",
+             "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_6/social_excellence.md",
+             "Team name", "Point count"),
+        ]
+    generate_leaderboard(rounds)
 
     # Or customize like this:
     # custom_rounds = [
