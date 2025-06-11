@@ -112,6 +112,16 @@ def generate_leaderboard(rounds_config=None):
       </div>
     </div>
   </div>
+  <!-- Google Pixel Font -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<!-- Animated Footer -->
+<footer class="text-center mt-10 mb-4 text-xs text-gray-400" style="font-family: 'Press Start 2P', cursive;">
+  Made with 
+  <span class="inline-block animate-bounce mx-1">🧡</span>
+  by Gautam Mahale, IITB Mars Rover Team
+</footer>
+
 </body>
 </html>
 """
