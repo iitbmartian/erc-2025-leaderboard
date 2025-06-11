@@ -17,27 +17,26 @@ def extract_markdown_table(md_text, team_col, score_col):
                 "|") and team_col.lower() in line.lower() and score_col.lower() in line.lower():
             table_started = True
             table_lines.append(line)
-            print(f"📋 Found table header at line {i}: {line.strip()}")
+            print(f"Found table header at line {i}: {line.strip()}")
         elif table_started and line.strip().startswith("|"):
             # Skip the separator line (usually contains dashes)
             if not all(c in "|-: " for c in line.strip()):
                 table_lines.append(line)
         elif table_started and not line.strip():
-            # Empty line might end the table, but let's be more lenient
+            # Might be an empty line ig
             continue
         elif table_started and not line.strip().startswith("|"):
             # Non-table line ends the table
             break
 
     if len(table_lines) < 2:
-        print("⚠ Table not found or malformed")
-        print(f"🔍 Looking for columns: '{team_col}' and '{score_col}'")
+        print(f"Looking for columns: '{team_col}' and '{score_col}'")
         # Debug: show lines that contain pipe characters
         pipe_lines = [f"Line {i}: {line.strip()}" for i, line in enumerate(lines) if "|" in line]
-        print(f"📋 Lines with pipes: {pipe_lines[:5]}")  # Show first 5
+        print(f"Lines with pipes: {pipe_lines[:5]}")
         return None
 
-    print(f"📊 Extracted {len(table_lines)} table lines")
+    print(f"Extracted {len(table_lines)} table lines")
 
     # Build list of rows - Handle empty cells properly
     data = []
