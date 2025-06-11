@@ -59,8 +59,8 @@ def generate_leaderboard(rounds_config=None):
       font-size: 1rem;
       background-color: #334155;
       border-radius: 9999px;
-      width: 35px;
-      height: 35px;
+      width: 30px;
+      height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
