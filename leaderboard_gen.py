@@ -105,7 +105,7 @@ def generate_leaderboard(rounds_config=None):
             {rows_html}
           </tbody>
         </table>
-        <div class="text-center text-white-400 text-m mt-6">
+        <div class="text-center text-white-400 text-l mt-6">
           Last updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
         </div>
       </div>
