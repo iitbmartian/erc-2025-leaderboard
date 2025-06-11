@@ -17,7 +17,8 @@ def generate_leaderboard(rounds_config=None):
     round_columns = [col for col in df.columns if col not in ["Team", "Total", "Position"]]
     output_path = "index.html"
 
-    # Generate HTML table rows
+
+
     rows_html = ""
     for _, row in df.iterrows():
         rank = row["Position"]
@@ -40,7 +41,7 @@ def generate_leaderboard(rounds_config=None):
 
     round_headers = ''.join([f'<th class="px-4 py-3">{col}</th>' for col in round_columns])
 
-    # Final HTML output
+    # The final HTML output
     html = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -116,9 +117,6 @@ def generate_leaderboard(rounds_config=None):
 """
     with open(output_path, "w") as f:
         f.write(html)
-
-    print(f"✅ Leaderboard written to {output_path}")
-
 
 if __name__ == "__main__":
     # Example usage with custom rounds configuration

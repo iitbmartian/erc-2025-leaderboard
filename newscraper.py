@@ -1,9 +1,6 @@
 import requests
 import pandas as pd
-from bs4 import BeautifulSoup
 from rapidfuzz import process, fuzz
-from io import StringIO
-import time
 
 
 def extract_markdown_table(md_text, team_col, score_col):
@@ -289,7 +286,7 @@ def get_leaderboard_dataframe(rounds_config=None):
 
                     # Sum scores for duplicate teams
                     df_to_merge = df_to_merge.groupby("Team", as_index=False)[round_col].sum()
-                    print(f"fter dedup in {round_col}: {len(df_to_merge)} rows")
+                    print(f"after dedup in {round_col}: {len(df_to_merge)} rows")
 
                 master_df = master_df.merge(df_to_merge, on="Team", how="left")
         else:
