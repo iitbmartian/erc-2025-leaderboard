@@ -3,9 +3,12 @@ This is the repository of the leaderboard website for the European Rover Challen
 You can head on over the website by clicking [here](https://iitbmartian.github.io/erc-website/)
 ### Updating the leaderboard:
 
-When the results for a round are announced, all you have to do is add the url and relevant column headings in this part of the leaderboard_gen.py code:
+When the results for a round are announced, we will add the url and relevant column headings in this part of the leaderboard_gen.py code:
 
 ```
+    # Example usage with custom rounds configuration
+    # You can pass rounds_config to customize which rounds to include
+    # Format: (round_number, round_name, url, team_col, score_col)
 rounds = [
   
 (1, "Qualification",  "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_1/qualification_results.md",  "Team name", "Sum"),
