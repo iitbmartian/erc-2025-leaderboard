@@ -81,11 +81,6 @@ def generate_leaderboard(rounds_config=None):
       box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
     }}
     
-        footer {{
-      font-family: 'Inter', sans-serif;
-      color: #e2e8f0;
-    }}
-    
   </style>
 </head>
 <body style="background-color: #FF7F50;">
@@ -116,7 +111,7 @@ def generate_leaderboard(rounds_config=None):
 
 
 <!-- Animated Footer -->
-<footer class="text-center mt-10 mb-4 text-xs text-white-400" style="font-family: 'Press Start 2P', cursive;">
+<footer style="font-family: inherit; font-size: 1.1em; text-align: center; margin-top: 2em;">
         <div class="text-center text-white-400 text-l mt-6">
           Last updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
         </div>
