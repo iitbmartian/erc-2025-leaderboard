@@ -111,7 +111,7 @@ def generate_leaderboard(rounds_config=None):
 
 
 <!-- Animated Footer -->
-<footer style="font-family: inherit; font-size: 1.1em; text-align: center; margin-top: 2em;">
+<footer style="font-family: inherit; font-size: 1.1em; text-align: center; margin-top: 1em;">
         <div class="text-center text-white-400 text-l mt-6">
           Last updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
         </div>
