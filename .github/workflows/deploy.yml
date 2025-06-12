@@ -24,7 +24,10 @@ jobs:
       
       - name: Install dependencies
         run:  pip install requests pandas beautifulsoup4 jinja2 rapidfuzz
-      
+
+      - name: Navigate to directory
+        run: cd scripts
+
       - name: Generate HTML
         run: python leaderboard_gen.py
       

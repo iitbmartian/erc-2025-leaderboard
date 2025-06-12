@@ -15,7 +15,7 @@ def generate_leaderboard(rounds_config=None):
     print("Shape:", df.shape)
 
     round_columns = [col for col in df.columns if col not in ["Team", "Total", "Position"]]
-    output_path = "index.html"
+    output_path = "../index.html"
 
 
 
@@ -88,7 +88,7 @@ def generate_leaderboard(rounds_config=None):
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col items-center mb-6">
-          <img src="logo.png" alt="ERC Logo" class="w-80 h-auto mb-4" />
+          <img src="assets/logo.png" alt="ERC Logo" class="w-80 h-auto mb-4" />
           <h1 class="text-3xl font-bold glow text-center">Live (kinda) Leaderboard</h1>
         </div>
 
@@ -106,9 +106,6 @@ def generate_leaderboard(rounds_config=None):
             {rows_html}
           </tbody>
         </table>
-        <div class="text-center text-white-400 text-l mt-6">
-          Last updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
-        </div>
       </div>
     </div>
   </div>
@@ -117,9 +114,12 @@ def generate_leaderboard(rounds_config=None):
 
 <!-- Animated Footer -->
 <footer class="text-center mt-10 mb-4 text-xs text-white-400" style="font-family: 'Press Start 2P', cursive;">
+        <div class="text-center text-white-400 text-l mt-6">
+          Last updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
+        </div>
   Made with 
   <span class="inline-block animate-bounce mx-1">❤️</span>
-  by Gautam Mahale, IITB Mars Rover Team
+  by IITB Mars Rover Team
 </footer>
 
 </body>
