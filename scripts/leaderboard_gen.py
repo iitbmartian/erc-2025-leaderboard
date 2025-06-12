@@ -53,7 +53,7 @@ def generate_leaderboard(rounds_config=None):
         body {{
           font-family: 'Inter', sans-serif;
           color: #e2e8f0;
-          background: url('https://mars.nasa.gov/system/news_items/main_images/9440_PIA25837-FigureA-web.jpg') no-repeat center center fixed;
+          background: url('assets/mars.jpg') no-repeat center center fixed;
           background-size: cover;
         }}
 
