@@ -2,6 +2,7 @@ name: Deploy Leaderboard to GitHub Pages
 on:
   push:
     branches: [master]
+
 permissions:
   contents: read
   pages: write
@@ -13,32 +14,30 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      
+
       - name: Install dependencies
-        run:  pip install requests pandas beautifulsoup4 jinja2 rapidfuzz
+        run: pip install requests pandas beautifulsoup4 jinja2 rapidfuzz
 
-      - name: Navigate to directory
-        run: cd scripts
+      - name: Run script
+        run: python scripts/leaderboard_gen.py
 
-      - name: Generate HTML
-        run: python leaderboard_gen.py
-      
       - name: Setup Pages
         uses: actions/configure-pages@v4
-      
+
       - name: Upload static files
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-      
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
