@@ -15,8 +15,6 @@ def generate_leaderboard(rounds_config=None):
     print("Shape:", df.shape)
 
     round_columns = [col for col in df.columns if col not in ["Team", "Total", "Position"]]
-    output_path = "../index.html"
-
 
 
     rows_html = ""
@@ -125,8 +123,9 @@ def generate_leaderboard(rounds_config=None):
 </body>
 </html>
 """
-    with open(output_path, "w") as f:
+    with open("index.html", "w", encoding="utf-8") as f:
         f.write(html)
+
 
 if __name__ == "__main__":
     # Example usage with custom rounds configuration
