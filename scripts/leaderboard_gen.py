@@ -87,7 +87,7 @@ def generate_leaderboard(rounds_config=None):
     
   </style>
 </head>
-<body style="background-color: #FF7F50;">
+<body>
   <div class="overlay">
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col items-center mb-6">
