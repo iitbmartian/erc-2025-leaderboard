@@ -50,10 +50,13 @@ def generate_leaderboard(rounds_config=None):
   <title>ERC-2025 Leaderboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {{
-      font-family: 'Inter', sans-serif;
-      color: #e2e8f0;
-    }}
+        body {{
+          font-family: 'Inter', sans-serif;
+          color: #e2e8f0;
+          background: url('https://mars.nasa.gov/system/news_items/main_images/9440_PIA25837-FigureA-web.jpg') no-repeat center center fixed;
+          background-size: cover;
+        }}
+
     .rank {{
       font-weight: bold;
       font-size: 1rem;
