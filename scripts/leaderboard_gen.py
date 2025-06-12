@@ -92,7 +92,7 @@ def generate_leaderboard(rounds_config=None):
     <div class="max-w-7xl mx-auto">
         <div class="flex flex-col items-center mb-6">
           <img src="assets/logo.png" alt="ERC Logo" class="w-80 h-auto mb-4" />
-          <h1 class="text-5xl font-bold glow text-center">Live Leaderboard</h1>
+          <h1 class="text-5xl font-bold glow text-center text-orange-500">Live Leaderboard</h1>
         </div>
 
       <div class="overflow-x-auto rounded-lg shadow-md">
