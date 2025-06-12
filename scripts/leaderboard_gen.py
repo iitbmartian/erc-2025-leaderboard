@@ -80,6 +80,12 @@ def generate_leaderboard(rounds_config=None):
       background: linear-gradient(135deg, #f97316, #b45309);
       box-shadow: 0 0 10px rgba(180, 83, 9, 0.5);
     }}
+    
+        footer {{
+      font-family: 'Inter', sans-serif;
+      color: #e2e8f0;
+    }}
+    
   </style>
 </head>
 <body style="background-color: #FF7F50;">
