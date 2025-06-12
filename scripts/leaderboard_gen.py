@@ -107,8 +107,7 @@ def generate_leaderboard(rounds_config=None):
       </div>
     </div>
   </div>
-  <!-- Google Pixel Font -->
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 
 <!-- Animated Footer -->
 <footer class="text-center mt-10 mb-4 text-xs text-white-400" style="font-family: 'Press Start 2P', cursive;">
