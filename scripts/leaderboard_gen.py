@@ -2,7 +2,6 @@ import pandas as pd
 from newscraper import get_leaderboard_dataframe
 from datetime import datetime, timezone
 
-
 def generate_leaderboard(rounds_config=None):
     df = get_leaderboard_dataframe(rounds_config)
     df["Total"] = df[[col for col in df.columns if col.startswith("Round") or col not in ["Team", "Total"]]].sum(axis=1)
