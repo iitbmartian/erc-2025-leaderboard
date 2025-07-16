@@ -2,7 +2,6 @@ import requests
 import pandas as pd
 from rapidfuzz import process, fuzz
 
-
 def extract_markdown_table(md_text, team_col, score_col):
     lines = md_text.strip().splitlines()
     table_started = False
