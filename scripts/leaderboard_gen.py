@@ -146,7 +146,7 @@ if __name__ == "__main__":
             (3, "ROS Test",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_2/ros_test_results.md",
              "Team name", "ROS Test score"),
-            (3, "ROS Test",
+            (4, "Payload Test",
              "https://raw.githubusercontent.com/husarion/erc2025/refs/heads/main/phase_3/payload_test_results.md",
              "Team","Payload Test"),
             (6, "Jury Points",
