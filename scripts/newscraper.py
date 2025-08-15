@@ -270,8 +270,9 @@ def get_leaderboard_dataframe(rounds_config=None):
     print(f"Master dataframe initialized with {len(master_df)} unique teams")
 
     # Create columns for all 7 rounds, but populate with actual round names
-    for i in range(1, 8):  # Always 7 rounds
-        matching_dfs = [df for df in round_dfs if df["_round_num"].iloc[0] == i]
+    for i in range(1, 9):  # Always 7 rounds
+        matching_dfs = [df for
+                         df in round_dfs if df["_round_num"].iloc[0] == i]
         if matching_dfs:
             for df in matching_dfs:
                 round_col = [col for col in df.columns if col not in ["Team", "_round_num"]][0]
